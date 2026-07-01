@@ -10,22 +10,37 @@ declare global {
   }
 }
 
+/**
+ * Middleware to check authentication via Bearer token in Authorization header.
+ * Verifies the backend JWT (not Firebase token) for protected routes.
+ */
 export const checkAuth =
   (...authRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.cookies.accessToken;
-      if (!accessToken) {
+      // Read token from Authorization header (Bearer <token>)
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
         res.status(401).json({
           success: false,
           message: "Access token missing",
         });
         return;
       }
-      console.log("Access token from the checkAuth: ", accessToken);
 
-      req.body = handleToken.verifyAccessToken(accessToken);
-      // Call the next function
+      const accessToken = authHeader.split(" ")[1]!;
+      const decoded = handleToken.verifyAccessToken(accessToken);
+
+      // Check role authorization if roles are specified
+      if (authRoles.length > 0 && !authRoles.includes(decoded.role)) {
+        res.status(403).json({
+          success: false,
+          message: "Insufficient permissions",
+        });
+        return;
+      }
+
+      req.user = decoded;
       next();
     } catch (error) {
       res.status(403).json({

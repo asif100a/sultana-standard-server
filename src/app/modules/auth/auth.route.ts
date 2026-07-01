@@ -1,15 +1,38 @@
+import { Router } from "express";
+import { AuthController } from "./auth.controller";
+import { checkAuth } from "../../middlewares/checkAuth";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { SyncAuthSchema } from "./auth.validation";
 
-    import {Router} from 'express';
-    import { AuthController } from './auth.controller';
+const authRoute = Router();
+const authController = new AuthController();
 
-    const authRoute = Router();
-    const authController = new AuthController();
+// POST /auth/sync — Firebase token + user data → backend JWT
+authRoute.post(
+  "/sync",
+  validateRequest(SyncAuthSchema),
+  authController.sync.bind(authController)
+);
 
-    authRoute.get('/', authController.getAll.bind(authController));
-    authRoute.get('/:id', authController.getById.bind(authController));
-    authRoute.post('/', authController.create.bind(authController));
-    authRoute.put('/:id', authController.update.bind(authController));
-    authRoute.delete('/:id', authController.delete.bind(authController));
+// GET /auth/check — Verify backend JWT and return user data
+authRoute.get(
+  "/check",
+  checkAuth("USER", "ADMIN", "SUPER_ADMIN"),
+  authController.check.bind(authController)
+);
 
-    export default authRoute;
-    
+// POST /auth/logout — Clear session
+authRoute.post(
+  "/logout",
+  checkAuth("USER", "ADMIN", "SUPER_ADMIN"),
+  authController.logout.bind(authController)
+);
+
+// POST /auth/delete — Delete user account
+authRoute.post(
+  "/delete",
+  checkAuth("USER", "ADMIN", "SUPER_ADMIN"),
+  authController.deleteAccount.bind(authController)
+);
+
+export default authRoute;

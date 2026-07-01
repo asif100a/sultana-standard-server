@@ -32,6 +32,8 @@ interface EnvConfig {
   SMTP_USER: string;
   SMTP_PASS: string;
   SMTP_FROM: string;
+
+  FIREBASE_PROJECT_ID: string;
 }
 
 export const envConfig: EnvConfig = {
@@ -62,4 +64,6 @@ export const envConfig: EnvConfig = {
   SMTP_USER: process.env.SMTP_USER as string,
   SMTP_PASS: process.env.SMTP_PASS as string,
   SMTP_FROM: process.env.SMTP_FROM as string,
+
+  FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID as string,
 };

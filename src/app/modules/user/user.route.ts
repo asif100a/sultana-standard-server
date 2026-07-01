@@ -1,15 +1,26 @@
+import { Router } from "express";
+import { UserController } from "./user.controller";
+import { checkAuth } from "../../middlewares/checkAuth";
 
-    import {Router} from 'express';
-    import { UserController } from './user.controller';
+const userRoute = Router();
+const userController = new UserController();
 
-    const userRoute = Router();
-    const userController = new UserController();
+// Protected routes — require authentication
+userRoute.get(
+  "/me",
+  checkAuth("USER", "ADMIN", "SUPER_ADMIN"),
+  userController.getMe.bind(userController)
+);
+userRoute.patch(
+  "/me",
+  checkAuth("USER", "ADMIN", "SUPER_ADMIN"),
+  userController.updateMe.bind(userController)
+);
 
-    userRoute.get('/', userController.getAll.bind(userController));
-    userRoute.get('/:id', userController.getById.bind(userController));
-    userRoute.post('/', userController.create.bind(userController));
-    userRoute.put('/:id', userController.update.bind(userController));
-    userRoute.delete('/:id', userController.delete.bind(userController));
+// Admin routes
+userRoute.get("/", checkAuth("ADMIN", "SUPER_ADMIN"), userController.getAll.bind(userController));
+userRoute.get("/:id", checkAuth("ADMIN", "SUPER_ADMIN"), userController.getById.bind(userController));
+userRoute.put("/:id", checkAuth("ADMIN", "SUPER_ADMIN"), userController.update.bind(userController));
+userRoute.delete("/:id", checkAuth("ADMIN", "SUPER_ADMIN"), userController.delete.bind(userController));
 
-    export default userRoute;
-    
+export default userRoute;

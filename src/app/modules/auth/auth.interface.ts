@@ -1,11 +1,23 @@
+import type { UserType } from "../user/user.interface";
 
-  export interface AuthType {
+export interface SyncRequestBody {
+  name: string;
+  email: string;
+  phone: string;
+}
 
-  }
+export interface AuthResponseType {
+  success: boolean;
+  message: string;
+  data?: {
+    user: UserType;
+    accessToken: string;
+    refreshToken: string;
+  };
+}
 
-  export interface AuthResponseType {
-    success: boolean;
-    data?: AuthType | AuthType[];
-    message: string
-  }
-  
+// Legacy interface kept for compatibility
+export interface AuthType {
+  firebaseUid: string;
+  userId: string;
+}
