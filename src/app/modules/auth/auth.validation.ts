@@ -6,9 +6,9 @@ import { z } from "zod";
  * while user data comes in the request body.
  */
 export const SyncAuthSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().optional(),
   email: z.string().email("Invalid email address"),
-  phone: z.string().min(1, "Phone number is required"),
+  phone: z.string().optional(),
 });
 
 export const DeleteAccountSchema = z.object({
