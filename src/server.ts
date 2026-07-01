@@ -10,7 +10,7 @@ const startServer = async () => {
     await connectDB();
 
     // Start Express server
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), "0.0.0.0", () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📡 Environment: ${envConfig.NODE_ENV}`);
     });
