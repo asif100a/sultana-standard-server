@@ -14,7 +14,7 @@ export const handleToken = {
    */
   generateAccessToken(payload: TokenPayloadType): string {
     return jwt.sign(payload, envConfig.JWT_ACCESS_SECRET, {
-      expiresIn: envConfig.JWT_ACCESS_EXPIRES_IN,
+      expiresIn: envConfig.JWT_ACCESS_EXPIRES_IN as any,
     });
   },
 
@@ -23,7 +23,7 @@ export const handleToken = {
    */
   generateRefreshToken(payload: TokenPayloadType): string {
     return jwt.sign(payload, envConfig.JWT_REFRESH_SECRET, {
-      expiresIn: envConfig.JWT_REFRESH_EXPIRES_IN,
+      expiresIn: envConfig.JWT_REFRESH_EXPIRES_IN as any,
     });
   },
 
