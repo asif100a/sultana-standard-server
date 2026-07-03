@@ -27,6 +27,7 @@ export class AuthService {
         name: userData.name,
         email: userData.email || decodedToken.email || "",
         phone: userData.phone || decodedToken.phone_number || "",
+        profilePicture: userData.profilePicture || decodedToken.picture || "",
       }
     );
 

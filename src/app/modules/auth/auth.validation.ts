@@ -9,6 +9,7 @@ export const SyncAuthSchema = z.object({
   name: z.string().optional(),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
+  profilePicture: z.string().optional(),
 });
 
 export const DeleteAccountSchema = z.object({

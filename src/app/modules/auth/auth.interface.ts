@@ -4,6 +4,7 @@ export interface SyncRequestBody {
   name: string;
   email: string;
   phone: string;
+  profilePicture?: string;
 }
 
 export interface AuthResponseType {

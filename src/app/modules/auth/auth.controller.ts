@@ -22,12 +22,13 @@ export class AuthController {
       }
 
       const firebaseIdToken = authHeader.split(" ")[1]!;
-      const { name, email, phone } = req.body;
+      const { name, email, phone, profilePicture } = req.body;
 
       const result = await authService.syncUser(firebaseIdToken, {
         name,
         email,
         phone,
+        profilePicture,
       });
 
       res.status(200).json({

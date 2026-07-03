@@ -28,6 +28,7 @@ export class UserService {
       name: string;
       email: string;
       phone: string;
+      profilePicture?: string;
     }
   ): Promise<UserType> {
     const existingUser = await UserModel.findOne({ firebaseUid });
@@ -37,6 +38,9 @@ export class UserService {
       existingUser.name = userData.name || existingUser.name;
       existingUser.email = userData.email || existingUser.email;
       existingUser.phone = userData.phone || existingUser.phone;
+      if (userData.profilePicture) {
+        existingUser.profilePicture = userData.profilePicture;
+      }
       await existingUser.save();
       return existingUser;
     }
@@ -47,6 +51,7 @@ export class UserService {
       name: userData.name,
       email: userData.email,
       phone: userData.phone,
+      profilePicture: userData.profilePicture || "",
       role: "USER",
       isVerified: true, // Verified through Firebase
       isPhoneVerified: false,

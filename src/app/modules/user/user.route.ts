@@ -18,7 +18,7 @@ userRoute.patch(
 );
 
 // Admin routes
-userRoute.get("/", checkAuth("ADMIN", "SUPER_ADMIN"), userController.getAll.bind(userController));
+userRoute.get("/", checkAuth("USER", "ADMIN", "SUPER_ADMIN"), userController.getAll.bind(userController));
 userRoute.get("/:id", checkAuth("ADMIN", "SUPER_ADMIN"), userController.getById.bind(userController));
 userRoute.put("/:id", checkAuth("ADMIN", "SUPER_ADMIN"), userController.update.bind(userController));
 userRoute.delete("/:id", checkAuth("ADMIN", "SUPER_ADMIN"), userController.delete.bind(userController));
