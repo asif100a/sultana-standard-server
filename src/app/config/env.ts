@@ -34,6 +34,9 @@ interface EnvConfig {
   SMTP_FROM: string;
 
   FIREBASE_PROJECT_ID: string;
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 
 export const envConfig: EnvConfig = {
@@ -66,4 +69,7 @@ export const envConfig: EnvConfig = {
   SMTP_FROM: process.env.SMTP_FROM as string,
 
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID as string,
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
 };

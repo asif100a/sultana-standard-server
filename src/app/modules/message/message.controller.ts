@@ -28,7 +28,7 @@ export class MessageController {
         throw new Error("Partner ID or User ID not found");
       }
 
-      const data = await messageService.getConversation(userId, partnerId);
+      const data = await messageService.getConversation(userId, partnerId as string);
       res.status(200).json({
         success: true,
         message: "Conversation retrieved successfully",

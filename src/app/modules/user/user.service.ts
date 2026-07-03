@@ -1,7 +1,20 @@
 import { type UserType } from "./user.interface";
 import { UserModel } from "./user.model";
+import { uploadToCloudinary } from "../../utils/cloudinary";
 
 export class UserService {
+  private async processProfilePicture(profilePicture?: string): Promise<string | undefined> {
+    if (!profilePicture) return undefined;
+    if (profilePicture.startsWith("data:image") || profilePicture.includes(";base64,")) {
+      try {
+        return await uploadToCloudinary(profilePicture);
+      } catch (err) {
+        console.error("Cloudinary upload failed, using original string:", err);
+      }
+    }
+    return profilePicture;
+  }
+
   async findAll(): Promise<UserType[]> {
     return UserModel.find();
   }
@@ -32,14 +45,15 @@ export class UserService {
     }
   ): Promise<UserType> {
     const existingUser = await UserModel.findOne({ firebaseUid });
+    const profilePicture = await this.processProfilePicture(userData.profilePicture);
 
     if (existingUser) {
       // Update user data if it has changed
       existingUser.name = userData.name || existingUser.name;
       existingUser.email = userData.email || existingUser.email;
       existingUser.phone = userData.phone || existingUser.phone;
-      if (userData.profilePicture) {
-        existingUser.profilePicture = userData.profilePicture;
+      if (profilePicture) {
+        existingUser.profilePicture = profilePicture;
       }
       await existingUser.save();
       return existingUser;
@@ -51,7 +65,7 @@ export class UserService {
       name: userData.name,
       email: userData.email,
       phone: userData.phone,
-      profilePicture: userData.profilePicture || "",
+      profilePicture: profilePicture || "",
       role: "USER",
       isVerified: true, // Verified through Firebase
       isPhoneVerified: false,
@@ -61,6 +75,9 @@ export class UserService {
   }
 
   async create(data: Partial<UserType>): Promise<UserType> {
+    if (data.profilePicture) {
+      data.profilePicture = await this.processProfilePicture(data.profilePicture);
+    }
     return UserModel.create(data);
   }
 
@@ -68,6 +85,9 @@ export class UserService {
     id: string,
     data: Partial<UserType>
   ): Promise<UserType | null> {
+    if (data.profilePicture) {
+      data.profilePicture = await this.processProfilePicture(data.profilePicture);
+    }
     return UserModel.findByIdAndUpdate(id, data, { new: true });
   }
 
@@ -75,6 +95,9 @@ export class UserService {
     firebaseUid: string,
     data: Partial<UserType>
   ): Promise<UserType | null> {
+    if (data.profilePicture) {
+      data.profilePicture = await this.processProfilePicture(data.profilePicture);
+    }
     return UserModel.findOneAndUpdate({ firebaseUid }, data, { new: true });
   }
 
