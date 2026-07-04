@@ -7,14 +7,17 @@ let message = "Something went wrong!"
 
 // Handle known errors
 if(err.message === "bcrypt salt not found" || err.message.includes('BCRYPT_SALT')) {
-    statusCode = 500
-    message: "Server configuration error: Bcrypt salt is missing"
+    statusCode = 500;
+    message = "Server configuration error: Bcrypt salt is missing";
 }else if(err.name === 'ValidationError') {
-    statusCode = 400
+    statusCode = 400;
     message = err.message;
 }else if(err.code === 11000) {
     statusCode = 409;
     message = "Duplicate value found";
+}else if(err.type === 'entity.too.large') {
+    statusCode = 413;
+    message = "Payload too large. Please upload a smaller file.";
 }
 
 // Final response
