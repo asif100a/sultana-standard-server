@@ -11,10 +11,10 @@ messageRoute.get(
   messageController.getConversation.bind(messageController)
 );
 
-messageRoute.get("/", messageController.getAll.bind(messageController));
-messageRoute.get("/:id", messageController.getById.bind(messageController));
-messageRoute.post("/", messageController.create.bind(messageController));
-messageRoute.put("/:id", messageController.update.bind(messageController));
-messageRoute.delete("/:id", messageController.delete.bind(messageController));
+messageRoute.get("/", checkAuth(), messageController.getAll.bind(messageController));
+messageRoute.get("/:id", checkAuth(), messageController.getById.bind(messageController));
+messageRoute.post("/", checkAuth(), messageController.create.bind(messageController));
+messageRoute.put("/:id", checkAuth(), messageController.update.bind(messageController));
+messageRoute.delete("/:id", checkAuth(), messageController.delete.bind(messageController));
 
 export default messageRoute;

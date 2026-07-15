@@ -7,7 +7,11 @@ const userService = new UserService();
 export class UserController {
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const data = await userService.findAll();
+      const data =
+        req.user?.role === "USER" && req.user.userId
+          ? await userService.findVerifiedChatPartners(req.user.userId)
+          : await userService.findAll();
+
       res.status(200).json({
         success: true,
         message: "The user data retrieved successfully",

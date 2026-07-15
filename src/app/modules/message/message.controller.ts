@@ -65,7 +65,17 @@ export class MessageController {
 
   async create(req: Request, res: Response): Promise<void> {
     try {
-      const data = await messageService.create(req.body);
+      const userId = req.user?.userId;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: "Unauthorized",
+        });
+        return;
+      }
+
+      const data = await messageService.createForUser(userId, req.body);
       res.status(201).json({
         success: true,
         message: "The message data created successfully",
