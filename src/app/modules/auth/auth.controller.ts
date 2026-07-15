@@ -1,8 +1,35 @@
 import type { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { catchAsync } from "../../utils/index";
+import { envConfig } from "../../config/env";
 
 const authService = new AuthService();
+
+const getFirebaseTokenErrorMessage = (error: any) => {
+  if (error.code === "auth/id-token-expired") {
+    return "Firebase token expired. Please sign in again.";
+  }
+
+  return error.message || "Firebase token could not be verified.";
+};
+
+const isFirebaseTokenVerificationError = (error: any) =>
+  typeof error?.code === "string" && error.code.startsWith("auth/");
+
+const isFirebaseNetworkError = (error: any) => {
+  const message = String(error?.message || "").toLowerCase();
+  const causeCode = String(error?.cause?.code || "").toLowerCase();
+
+  return (
+    causeCode === "eacces" ||
+    causeCode === "econnrefused" ||
+    causeCode === "etimedout" ||
+    message.includes("error code: eacces") ||
+    message.includes("error code: econnrefused") ||
+    message.includes("error code: etimedout") ||
+    message.includes("unable to connect")
+  );
+};
 
 export class AuthController {
   /**
@@ -17,6 +44,7 @@ export class AuthController {
         res.status(401).json({
           success: false,
           message: "Firebase ID token is required",
+          errorCode: "FIREBASE_TOKEN_REQUIRED",
         });
         return;
       }
@@ -38,13 +66,38 @@ export class AuthController {
         accessToken: result.accessToken,
       });
     } catch (error: any) {
-      if (
-        error.code === "auth/id-token-expired" ||
-        error.code === "auth/argument-error"
-      ) {
+      if (isFirebaseNetworkError(error)) {
+        console.error("Firebase token verification service is unreachable:", {
+          code: error.code,
+          message: error.message,
+        });
+
+        res.status(503).json({
+          success: false,
+          message:
+            "Authentication service is temporarily unavailable. Please try again.",
+          errorCode: "FIREBASE_AUTH_UNAVAILABLE",
+        });
+        return;
+      }
+
+      if (isFirebaseTokenVerificationError(error)) {
+        console.error("Firebase token verification failed:", {
+          code: error.code,
+          message: error.message,
+        });
+
         res.status(401).json({
           success: false,
-          message: "Invalid or expired Firebase token",
+          message: getFirebaseTokenErrorMessage(error),
+          errorCode: "INVALID_FIREBASE_TOKEN",
+          details:
+            envConfig.NODE_ENV === "development"
+              ? {
+                  firebaseCode: error.code,
+                  firebaseMessage: error.message,
+                }
+              : undefined,
         });
         return;
       }

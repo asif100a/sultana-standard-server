@@ -2,7 +2,9 @@ import { Server as SocketIOServer, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { verifyFirebaseToken } from "./app/config/firebase";
 import { UserModel } from "./app/modules/user/user.model";
-import { MessageModel } from "./app/modules/message/message.model";
+import { MessageService } from "./app/modules/message/message.service";
+
+const messageService = new MessageService();
 
 export function initializeSocket(httpServer: HttpServer) {
   const io = new SocketIOServer(httpServer, {
@@ -26,6 +28,10 @@ export function initializeSocket(httpServer: HttpServer) {
       const user = await UserModel.findOne({ firebaseUid: decoded.uid });
       if (!user) {
         return next(new Error("Authentication error: User not found in DB"));
+      }
+
+      if (!user.isVerified) {
+        return next(new Error("Authentication error: User is not verified"));
       }
 
       // Attach userId to the socket
@@ -53,9 +59,12 @@ export function initializeSocket(httpServer: HttpServer) {
           return;
         }
 
-        // Save to DB
-        const message = await MessageModel.create({
-          sender: userId,
+        if (receiverId === userId) {
+          if(callback) callback({ success: false, error: "You cannot chat with your own account" });
+          return;
+        }
+
+        const message = await messageService.createForUser(userId, {
           receiver: receiverId,
           text: text || "",
           imageUrl: imageUrl || "",

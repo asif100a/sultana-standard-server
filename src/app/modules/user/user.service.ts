@@ -19,6 +19,13 @@ export class UserService {
     return UserModel.find();
   }
 
+  async findVerifiedChatPartners(currentUserId: string): Promise<UserType[]> {
+    return UserModel.find({
+      _id: { $ne: currentUserId },
+      isVerified: true,
+    });
+  }
+
   async findById(id: string): Promise<UserType | null> {
     return UserModel.findById(id);
   }

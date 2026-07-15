@@ -8,22 +8,29 @@ const PORT = envConfig.PORT || 5000;
 
 const startServer = async () => {
   try {
-    // Connect to MongoDB
-    await connectDB();
-
-    // Create HTTP server
     const httpServer = http.createServer(app);
 
-    // Initialize Socket.io
     initializeSocket(httpServer);
 
-    // Start Express/HTTP server
-    httpServer.listen(Number(PORT), "0.0.0.0", () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`📡 Environment: ${envConfig.NODE_ENV}`);
+    httpServer.listen(Number(PORT), "0.0.0.0", async () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`Environment: ${envConfig.NODE_ENV || "development"}`);
+
+      try {
+        await connectDB();
+      } catch {
+        if (envConfig.NODE_ENV === "production") {
+          httpServer.close(() => process.exit(1));
+          return;
+        }
+
+        console.error(
+          "Server is running without MongoDB. Database-backed routes may fail until DB_URL is reachable."
+        );
+      }
     });
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 };
